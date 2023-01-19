@@ -9,7 +9,7 @@ spring:
         streams:
           enabled: true
     sampler:
-      probability=0.01
+      probability=0.0001
   config:
     activate:
       on-profile: "local"

@@ -43,13 +43,22 @@ public class Main {
 //        producer.initTransactions();
 
         int i = 0;
-        while (i<100000) {
+        while (i<8000000) {
             PaymentMessage paymentMessage = generateNextMessage();
-            producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()));
+//            producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()));
+            producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()),
+                    (metadata, exception) -> {
+                        if (exception == null) {
+
+                        } else {
+                            System.out.println("Error sending message: " + exception);
+                        }
+                    });
 //            producer.commitTransaction();
             i++;
-            Thread.sleep(1);
+//            Thread.sleep(1);
         }
+        producer.close();
     }
 
 
