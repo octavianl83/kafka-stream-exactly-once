@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,8 +19,13 @@ public class Consumer {
     Map<String, String> map = new ConcurrentHashMap<>();
 
     @KafkaListener(topics = {"messageprocessed"})
+    @Transactional
     public void onMessageRest(ConsumerRecord<String, String> customerRecord) {
-        map.put(customerRecord.key(), customerRecord.value());
+        try {
+            map.put(customerRecord.key(), customerRecord.value());
+        } catch (Exception e) {
+
+        }
         counter.getAndIncrement();
         log.info("Number of kafka messages received: {} and unique message {} ", String.valueOf(counter), String.valueOf(map.size()));
     }

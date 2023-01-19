@@ -1,14 +1,12 @@
-package model;
+package com.volante.innovation.validationservice.model;
 
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class PaymentMessage {
 
     String transactionId;
     String transactionStatus;
-    List transactionTracking;
+    String transactionTracking;
     String transactionTimestamp;
 }

@@ -1,6 +1,7 @@
 package com.logicore.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import model.PaymentMessage;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
@@ -15,17 +16,20 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Random;
 
+@Slf4j
 public class Main {
 
     static Long key = 1L;
     public static void main(String[] args) throws IOException, InterruptedException {
 
 //        try {
-//            updatePartitions("validate");
+////            createTopicPartitions("message");
+//            updatePartitions("messageprocessed");
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }
@@ -43,24 +47,23 @@ public class Main {
 //        producer.initTransactions();
 
         int i = 0;
-        while (i<8000000) {
+        while (i<10000) {
             PaymentMessage paymentMessage = generateNextMessage();
 //            producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()));
-            producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()),
+            producer.send(new ProducerRecord<>("message", paymentMessage.getTransactionId(), objectMapper.writeValueAsString(paymentMessage)),
                     (metadata, exception) -> {
                         if (exception == null) {
 
                         } else {
-                            System.out.println("Error sending message: " + exception);
+                            log.error("Error sending message: " + exception);
                         }
                     });
 //            producer.commitTransaction();
             i++;
-//            Thread.sleep(1);
+            Thread.sleep(1);
         }
         producer.close();
     }
-
 
     public static void updatePartitions(String partition) throws Exception {
         Properties props = new Properties();
@@ -70,19 +73,20 @@ public class Main {
         client.createPartitions(Collections.singletonMap(partition, newPartitions)).all().get();
     }
 
-    public static void createTopicPartitions() throws Exception {
+    public static void createTopicPartitions(String topic1) throws Exception {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         AdminClient client = AdminClient.create(props);
-        NewTopic topic = new NewTopic("message", 10, (short) 1);
+        NewTopic topic = new NewTopic(topic1, 10, (short) 1);
         client.createTopics(Collections.singleton(topic)).all().get();
     }
 
     public static PaymentMessage generateNextMessage() {
         String message = getRandomString();
         PaymentMessage paymentMessage = new PaymentMessage();
-        paymentMessage.setKey(key.toString());
-        paymentMessage.setValue(message);
+        paymentMessage.setTransactionId(key.toString());
+        paymentMessage.setTransactionStatus("INIT");
+        paymentMessage.setTransactionTracking(new ArrayList());
         key = key + 1;
         return paymentMessage;
     }
