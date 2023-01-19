@@ -43,12 +43,12 @@ public class Main {
 //        producer.initTransactions();
 
         int i = 0;
-        while (i<2) {
+        while (i<100000) {
             PaymentMessage paymentMessage = generateNextMessage();
             producer.send(new ProducerRecord<>("message", paymentMessage.getKey(), paymentMessage.getValue()));
 //            producer.commitTransaction();
             i++;
-            Thread.sleep(10);
+            Thread.sleep(1);
         }
     }
 

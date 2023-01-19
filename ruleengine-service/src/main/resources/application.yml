@@ -7,6 +7,8 @@ spring:
       kafka:
         streams:
           enabled: true
+    sampler:
+      probability=0.01
   config:
     activate:
       on-profile: "local"
