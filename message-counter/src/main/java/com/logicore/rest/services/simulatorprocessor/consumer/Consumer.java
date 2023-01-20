@@ -24,7 +24,7 @@ public class Consumer {
         try {
             map.put(customerRecord.key(), customerRecord.value());
         } catch (Exception e) {
-
+            log.error("Error sending message: " + e);
         }
         counter.getAndIncrement();
         log.info("Number of kafka messages received: {} and unique message {} ", String.valueOf(counter), String.valueOf(map.size()));
